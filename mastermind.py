@@ -4,7 +4,7 @@
 import random as r
 import sys
 
-aide = '''
+help_fr = '''
 Jeu du Mastermind en version terminal.
 Au lancement du programme il est demandé d'entrer la longueur de la combinaison : Si la longueur entrée est 0, le programme termine.
    Privilégier des valeurs entre 3 et 5 pour une bonne expérience de jeu.
@@ -43,63 +43,63 @@ def get(prompt):
     else:
         return i if len(i) else get(prompt)
 
-def out(el, pref = '\033[1m', suff = '\033[0m'):
-    print(pref, end='')
+def out(el, pre = '\033[1m', suf = '\033[0m'):
+    print(pre, end='')
     for i in el:
         print(str(i), end = ' ')
-    print(suff)
+    print(suf)
 
-def tentative(prompt, l, couleurs):
-    tent = get(prompt)
+def attempt(prompt, l, colors):
+    att = get(prompt)
     if len(tent) != l:
         print('Longueur incorrecte.')
-        return tentative(prompt, l, couleurs)
+        return attempt(prompt, l, colors)
     else:
-        return list(couleurs[i] for i in tent)
+        return list(colors[i] for i in att)
 
-def verifier(tent, combi):
-    if tent == combi:
+def check(att, combo):
+    if att == combo:
         return True, []
     else:
-        indice = []
-        for i, e in enumerate(tent):
-            if combi[i] == e:
-                indice.append('\033[30m#')
+        hint = []
+        for i, e in enumerate(att):
+            if combo[i] == e:
+                hint.append('\033[30m#')
             elif e in combi:
-                indice.append('\033[37m#')
-        r.shuffle(indice)
-        return False, indice
+                hint.append('\033[37m#')
+        r.shuffle(hint)
+        return False, hint
 
-couleurs = {'n': '\033[30m@',
-            'r': '\033[31m@',
-            'v': '\033[32m@',
-            'j': '\033[33m@',
-            'b': '\033[34m@',
-            'p': '\033[35m@',
-            'c': '\033[36m@',
-            'w': '\033[37m@'}
+colors = {'n': '\033[30m@',
+          'r': '\033[31m@',
+          'v': '\033[32m@',
+          'j': '\033[33m@',
+          'b': '\033[34m@',
+          'p': '\033[35m@',
+          'c': '\033[36m@',
+          'w': '\033[37m@'}
 
 if len(sys.argv) < 1:
     if sys.argv[1] in '--help':
-        print(aide)
+        print(help_fr)
         exit()
 
-tent, n, fini = '', 0, False
+att, n, over = '', 0, False
 
-print('Pour afficher les règles, tapez `' + sys.argv[0] + ' --help` dans le terminal.')
-combi = r.sample(list(couleurs.values()), int(get('Taille de la combinaison = ')))
-print('Couleurs disponibles : ' + str(list(couleurs)))
+print('To print the rules, hit `' + sys.argv[0] + ' --help` on the terminal.')
+combo = r.sample(list(colors.values()), int(get('Combo size: ')))
+print('Availables colors: ' + str(list(colors)))
 
-while not fini and n < 8:
+while not over and n < 8:
     n += 1
-    tent_prompt = 'Tentative n° ' + str(n) + ' : '
-    tent = tentative(tent_prompt, len(combi), couleurs)
-    out(tent)
-    fini, indice = verifier(tent, combi)
-    out(indice)
+    tent_prompt = 'Attempt no ' + str(n) + ': '
+    att = attempt(att_prompt, len(combo), colors)
+    out(att)
+    over, hint = verifier(att, combo)
+    out(hint)
 else:
-    if fini:
-        print('Gagné en ' + str(n) + ' coup' + ('s' * (n > 1)) + ' !')
+    if over:
+        print('You won in ' + str(n) + ' attempt' + ('s' * (n > 1)) + '!')
     else:
-        print('Perdu !')
-        out(combi)
+        print('Game over!')
+        out(combo)
