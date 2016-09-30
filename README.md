@@ -3,6 +3,7 @@ Here I will gather my works in Python (3 exclusively).
 There are games, programs, all the Python code (worth being kept) since I began learning it.  
 
 ## Quick summary
+`csv2html.py` is a csv to HTML tables transcriptor. Works fine, supports options (type `csv2html.py -h` to find more!)
 
 `html_autoscript.py` is a ***complete work in progress*** but is intended to ask user input for stuff (titles, blocks to add, etc) and writes the corresponding HTML on its own, like a big boy.
 
