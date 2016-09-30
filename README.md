@@ -6,6 +6,7 @@ There are games, programs, all the Python code (worth being kept) since I began 
 
 `html_autoscript.py` is a ***complete work in progress*** but is intended to ask user input for stuff (titles, blocks to add, etc) and writes the corresponding HTML on its own, like a big boy.
 
+`brainfuck.py` I guess the name speaks for itself. If any people haven't guessed it yet, this is a [Brainfuck](http://esolangs.org/wiki/Brainfuck) interpreter. I believe it works just fine.
 `batleship.py` is a terminal version of the famous game. Total ***work in progress*** too.
 
 `tic_tac_toe.py` is, again, a terminal version of that game. Complete and should work fine (hopefully).
