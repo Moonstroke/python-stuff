@@ -26,4 +26,5 @@ except ValueError:
     exit(1)
 
 for i in arg.split('.'):
-    print(bin(i)[2:])
+    arg.replace(i, bin(int(i))[2:])
+print(arg)
