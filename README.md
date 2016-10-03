@@ -18,7 +18,7 @@ There are games, programs, all the Python code (worth being kept) since I began 
 `mastermind.py` is, huh, another terminal game (man, I should stop making those...) Completely works fine and all. Even supports (drum rolls...) colors! Amazing!  
 I used ANSI escape codes (you know, that <kbd>ESC</kbd> + `a number` + <kbd>[</kbd> thing) and it's pretty nice.
 
-`hex` and `bin` two (totally functional) little scripts that can be used in a $PATH directory to gain a binary / hexa converter! Yay! At least on \*nix.
+`hex` and `bin` two (totally functional) little scripts that can be used in a `$PATH` directory to gain a binary / hexa converter! Yay! At least on \*nix.
 
 `ipv42bin.py` simply and *functional*…ly translates a provided IP to binary format, dots kept.
 
