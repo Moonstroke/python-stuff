@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+try:
+    from sys import argv, stdin
+    
+    if len(argv) == 1 or argv[1] == '-':
+        arg = stdin.read()
+        for arg in stdin.read():
+            print(hex(int(arg))[2:])
+    else:
+        assert len(argv) == 2
+        print(hex(int(argv[1]))[2:])
+except:
+    exit(1)
