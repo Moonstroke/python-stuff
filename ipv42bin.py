@@ -25,6 +25,9 @@ except ValueError:
     print(usage, file = sys.stderr)
     exit(1)
 
+r = ''
 for i in arg.split('.'):
-    arg.replace(i, bin(int(i))[2:])
-print(arg)
+    b = bin(int(i))[2:]
+    b = '0' * (8 - len(b)) + b
+    r += b + '.'
+print(r[:-1])
