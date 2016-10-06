@@ -20,6 +20,8 @@ I used ANSI escape codes (you know, that <kbd>ESC</kbd> + `a number` + <kbd>[</k
 
 `hex` and `bin` two (totally functional) little scripts that can be used in a `$PATH` directory to gain a binary / hexa converter! Yay! At least on \*nix.
 
+`color_hex_neg.py` outputs the negative hexadecimal value of a color code (eg. `#c0ffee` -> `#3f0011`)
+
 `ipv42bin.py` simply and *functional*…ly translates a provided IP to binary format, dots kept.
 
 `More stuff to come.py`!!
