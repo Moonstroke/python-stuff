@@ -8,103 +8,117 @@ def get(prompt, allow_empty=False):
         r = input(prompt)
     except EOFError:
         print('')
-        return get(prompt)
+        get(prompt)
     except KeyboardInterrupt:
         print('')
         exit()
-else: return r if r != '' or allow_empty else get(prompt)
+    else:
+        return r if r != '' or allow_empty else get(prompt, allow_empty)
 
-def en_string(list):
-    s = ''
-    for k in list:
-        s += k
-    return s
+def listr(l):
+    r = l[0]
+    for i in  l[1:]:
+        r += i
+    return r
 
 class Grid(object):
     '''Instantiates a grid of dimensions `h` by `w`
 '''
     
-    def place_mines(self, n_mines):
-        for _ in range(n_mines):
-            i = randrange(len(self.grille))
-            self.grid[i] = '@'
+    _adj = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)] 
+    def _mine(self, grid, n, h, w):
+        placed = 0
+        while placed < n:
+            i = randrange(w)
+            j = randrange(h)
+            if grid[j][i] != -1:
+                grid[j][i] = -1
+                for d in self._adj:
+                    _i = i + d[0]
+                    _j = j + d[1]
+                    try:
+                        grid[_j][_i] += 1
+                    except: continue
+                placed += 1
+            else:
+                continue
+        return grid
     
-    def to_grid(self, hauteur, largeur):
-        self.grille = [self.grille[i:i + largeur] for i in range(0, len(self.grille), largeur)]
-        if len(self.grille) != hauteur: raise ValueError('Incorrect height')
-    
-    def __init__(self, h, w, n_mines):
-        self.grille = ['.'] * h * w
-        self.place_mines(n_mines)
-        self.to_grid(hauteur, largeur)
-        self.over = False
-        self.vict = False
+    def __init__(self, h, w, n):
+        self.grid = self._mine([[0] * w] * h, n, h, w)
+        self.surf = [['#'] * w] *h
+        self.n_mines = n
+        self.flags = []
+        self.won = None
     
     def __repr__(self):
-        r = '+' + '-' * len(self.grille[0]) + '+\n'
-        for l in self.grille:
-            r += '|' + to_string(l) + '|\n'
-        r += '+' + '-' * len(self.grille[-1]) + '+\n'
+        r = '+' + '-' * len(self.surf[0]) + '+\n'
+        for l in self.surf:
+            r += '|' + listr(l) + '|\n'
+        r += '+' + '-' * len(self.surf[-1]) + '+\n'
         return r
     
-    def check_case(self, x, y):
-        try: return x >= 0 and y >= 0 and self.grid[y][x] in '@P!'
-        except IndexError: return False
+    def _kaboom(self, x, y):
+        self.won = False
+        self.surf[y][x] = '\033[31m@\033[0m'
+        for _x, _y in self.flags:
+            if self.grid[_y][_x] == -1:
+                if self.surf[_y][_x] == 'F':
+                    self.surf[_y][_x] = '\033[32mF\033[0m'
+                else:
+                    self.surf[_y][_x] = '@'
+            else:
+                if self.surf[_y][_x] == 'F':
+                    self.surf[_y][_x] = '\033[33mF\033[0m'
     
-    def adjacent_mines(self, x, y):
-        ww = self.check_tile(x - 1, y)
-        nw = self.check_tile(x - 1, y - 1)
-        nn = self.check_tile(x, y - 1)
-        ne = self.check_tile(x + 1, y - 1)
-        ee = self.check_tile(x + 1, y)
-        se = self.check_tile(x + 1, y + 1)
-        ss = self.check_tile(x, y + 1)
-        sw = self.check_tile(x - 1, y + 1)
-        return ww + nw + nn + ne + ee + se + ss + sw
-    
-    def open_tiles(self, x, y):
-        z = self.adjacent_mines(x, y)
+    def open(self, x, y, is_played):
+        z = self.grid[y][x]
         if z == 0:
-            try:
-                self.grille[y][x] = ' '
-                self.open_tiles(x - 1, y)
-                self.open_tiles(x - 1, y - 1)
-                self.open_tiles(x, y - 1)
-                self.open_tiles(x + 1, y - 1)
-                self.open_tiles(x + 1, y)
-                self.open_tiles(x + 1, y + 1)
-                self.open_tiles(x, y + 1)
-                self.open_tiles(x - 1, y + 1)
-            except: pass
+            self.surf[y][x] = '.'
+            for d in self._adj:
+                _x = x + d[0]
+                _y = y + d[1]
+                if self.surf[_y][_x] == '#':
+                    self.open(x, y, False)
+        elif z == -1:
+            if is_played:
+                self._kaboom(x, y)
         else:
-            self.grid[y][x] = str(z)
-    
-    def click(self, x, y):
-        if self.grille[y][x] == '.':
-            self.open_tiles(x, y)
-            self.vict = not [l for l in self.grid if '@' in l]
-        elif self.grid[y][x] == '@':
-            self.grid[y][x] = '#'
-            self.over = True
-
+            self.surf[y][x] = str(z)
     
     def flag(self, x, y):
-        '''Switch between '.', 'F' and '?' if tile is safe, or '@', 'P', '!' if tile is mined.
-'''
-        m = {'.': 'F', 'F': '?', '?': '.', '@': 'P', 'P': '!', '!': '@'}
-        self.grid[y][x] = m[self.grid[y][x]]
+        if self.surf[y][x] == '#':
+            self.flags.append((x, y))
+            self.surf[y][x] == 'F'
+        else:
+            self.flags.remove((x, y))
+            if self.surf[y][x] == 'F':
+                self.surf[y][x] = '?'
+            elif self.surf[y][x] == '?':
+                self.surf[y][x] = '#'
+            else:
+                raise ValueError('What the hell!?')
+            
+    def check(self):
+        if sum(int(self.grid[y][x] == -1) for x, y in self.flags) == self.n_mines:
+            self.won = True
+        
 
+height, width, nb_mines = map(int, (get('Height of grid: '), get('Width of grid: '), get('Number of mines: ')))
+grid = Grid(height, width, nb_mines)
 
-h, w, n = map(int, (get('Height of the grid: '), get('Width: '), get('Number of mines: ')))
-grid = Grid(h, w, n)
-
-while not grid.fini:
+while grid.won is None:
     print(repr(grid))
     a = ''
-    while a not in ('c', 'f'):
-        a = get('Action: [c]lick/[f]lag ')
+    while a not in ('o', 'f'):
+        a = get('Action: [o]pen/[f]lag ').lower()
     x, y = map(int, (get('X = '), get('Y = ')))
-    if a == 'c':
-        grid.click(x, y)
+    if a == 'o':
+        if (x, y) in grid.flags:
+            continue
+        else:
+            grid.open(x, y, True)
     elif a == 'f':
         grid.flag(x, y)
+    grid.check()
+print('\nYou {}!\n\n'.format('win' if self.over else 'lose'), repr(grid))
