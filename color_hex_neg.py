@@ -10,17 +10,21 @@ If called without argument, or argument is `-`, value is read from STDIN.
 '''.format(argv[0])
 
 try:
-    exe, args = argv
-except:
-    args = stdin.read()
-for arg in args.split('\n'):
-    if len(arg) == 0:
-        continue
+    exe, *args = argv
+    if not len(args) or args[0] == '-':
+        raise ValueError
+    if args[0] in ('-h', '--help'):
+        print(usage)
+        exit(255)
+except ValueError:
+    args = stdin.read().split('\n')
+
+i = 0
+for arg in args:
+    i += 1
+    if not len(arg): continue
+    m = (1 << 4 * len(arg)) - 1
     try:
-        if arg[0] == '#':
-            arg = arg[1:]
-        m = (1 << 4 * len(arg)) - 1
         print('#' + hex(m - int(arg, 16))[2:])
     except:
-        print(usage)
-        exit(1)
+        exit(i)
