@@ -1,33 +1,37 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import sys
+from sys import argv, stdin
 
-def get(prompt='', allow_empty=False):
-    try:
-        r = input(prompt)
-    except EOFError:
-        print('')
-        get(prompt)
-    except KeyboardInterrupt:
-        print('')
-        exit()
-    else:
-        return r if r != '' or allow_empty else get(prompt)
-
-usage = '''USAGE: {} ADDR
-where ADDR is an IPv4 address (eg. 192.240.142.10)
-'''
+usage = '''USAGE: {} [ [#]HEXVAL]
+Outputs the negative value of #HEXVAL
+HEXVAL may begin with an '#', however one will always be output.
+If called without argument, or argument is `-`, value is read from STDIN.
+'''.format(argv[0])
 
 try:
-    exe, arg = sys.argv
+    exe, *args = argv
+    if not len(args) or args[0] == '-':
+        raise ValueError
+    if args[0] in ('-h', '--help'):
+        print(usage)
+        exit(255)
 except ValueError:
-    print(usage, file = sys.stderr)
-    exit(1)
+    args = stdin.read().split('\n')
 
-r = ''
-for i in arg.split('.'):
-    b = bin(int(i))[2:]
-    b = '0' * (8 - len(b)) + b
-    r += b + '.'
-print(r[:-1])
+i = 0
+for arg in args:
+    i += 1
+    if not len(arg): continue
+    m = (1 << 4 * len(arg)) - 1
+    try:
+        r = ''
+        for i in arg.split('.'):
+            b = bin(int(i))[2:]
+            b = '0' * (8 - len(b)) + b
+            r += b + '.'
+            print(r[:-1])
+    except:
+        exit(i)
+
+
