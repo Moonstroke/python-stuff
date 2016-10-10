@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#coding: utf-8
+# -*- coding: utf-8 -*-
 
 import random as r
 import sys
@@ -7,29 +7,29 @@ import sys
 help_fr = '''
 Jeu du Mastermind en version terminal.
 Au lancement du programme il est demandé d'entrer la longueur de la combinaison : Si la longueur entrée est 0, le programme termine.
-   Privilégier des valeurs entre 3 et 5 pour une bonne expérience de jeu.
+\tPrivilégier des valeurs entre 3 et 5 pour une bonne expérience de jeu.
 La combinaison consiste en une suite de couleurs choisies aléatoirement dans un ensemble précisé ultérieurement.
 
 Il est ensuite demandé d'entrer une tentative.
 Les couleurs sont représentées par un seul caractère, et sont : 
- - Rouge : r
- - Vert : v
- - Bleu : b
- - Jaune : j
- - Cyan (bleu ciel) : c
- - Violet : p
- - Noir : n
- - Blanc : w
+\t- Rouge : r
+\t- Vert : v
+\t- Bleu : b
+\t- Jaune : j
+\t- Cyan (bleu ciel) : c
+\t- Violet : p
+\t- Noir : n
+\t- Blanc : w
 
-   Si la longueur en caractères est différente de la longueur de la combinaison, la tentative sera à retaper.
+\tSi la longueur en caractères est différente de la longueur de la combinaison, la tentative sera à retaper.
 La tentative est ensuite affichée en caractères arobase ('@') en couleurs, suivie d'un indice.
 L'indice consiste en des caractères croisillons ('#') blancs ou noirs.
-   Un croisillon blanc indique qu'une des couleurs de la tentative est présente dans la combinaison, mais pas à la bonne place.
-   Un croisillon noir indique qu'une des couleurs de la tentative est correcte et à la bonne place dans la combinaison.
-   Pas de croisillon indique que la couleur n'est pas dans la combinaison.
-   Attention : la position des croisillons est aléatoire et ne correspond pas à chaque caractère de la tentative.
+\tUn croisillon blanc indique qu'une des couleurs de la tentative est présente dans la combinaison, mais pas à la bonne place.
+\tUn croisillon noir indique qu'une des couleurs de la tentative est correcte et à la bonne place dans la combinaison.
+\tPas de croisillon indique que la couleur n'est pas dans la combinaison.
+\tAttention : la position des croisillons est aléatoire et ne correspond pas à chaque caractère de la tentative.
 Il est ensuite demandé d'entrer une nouvelle tentative ; et ansi de suite jusqu'à ce que la tentative soit correcte.
-   Si le nombre de tentatives atteint 8, c'est échoué, et la combinaison est dévoilée.
+\tSi le nombre de tentatives atteint 8, c'est échoué, et la combinaison est dévoilée.
 '''
 def get(prompt):
     try:
