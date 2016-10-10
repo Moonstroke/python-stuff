@@ -8,7 +8,7 @@ def get(prompt, allow_empty=False):
         r = input(prompt)
     except EOFError:
         print('')
-        get(prompt)
+        return get(prompt)
     except KeyboardInterrupt:
         print('')
         exit()
