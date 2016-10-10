@@ -6,7 +6,7 @@ def get(prompt, allow_empty=False):
         r = input(prompt)
     except EOFError:
         print('')
-        return get(prompt)
+        r = get(prompt)
     except KeyboardInterrupt:
         print('')
         exit()
