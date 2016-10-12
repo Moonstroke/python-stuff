@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sys import argv, stdin
+from os import linesep
 
 usage = '''USAGE: {} [ [#]HEXVAL]
 Outputs the negative value of #HEXVAL
@@ -17,7 +18,7 @@ try:
         print(usage)
         exit(255)
 except ValueError:
-    args = stdin.read().split('\n')
+    args = stdin.read().split(linesep)
 
 i = 0
 for arg in args:
