@@ -3,6 +3,7 @@
 
 from sys import argv, stdin
 from os import linesep
+
 usage = '''USAGE: {} [ [#]HEXVAL]
 Outputs the negative value of #HEXVAL
 HEXVAL may begin with an '#', however one will always be output.
