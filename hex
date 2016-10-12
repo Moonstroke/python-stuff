@@ -4,10 +4,10 @@
 from sys import argv, stdin
 from os import linesep
 
-usage = '''USAGE: {} [ [#]HEXVAL]
+usage = '''USAGE: {} [INT]
 Outputs the negative value of #HEXVAL
-HEXVAL may begin with an '#', however one will always be output.
 If called without argument, or argument is `-`, value is read from STDIN.
+On error exits with code the number of the failing value.
 '''.format(argv[0])
 
 try:
