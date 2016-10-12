@@ -4,9 +4,9 @@
 from sys import argv, stdin
 from os import linesep
 
-usage = '''USAGE: {} [INT]
-Outputs the negative value of #HEXVAL
-If called without argument, or argument is `-`, value is read from STDIN.
+usage = '''USAGE: {} [INT...]
+Outputs the hexadecimal value of INT, supports multiple arguments.
+If called without argument, or only argument is `-`, values are read from STDIN.
 On error exits with code the number of the failing value.
 '''.format(argv[0])
 
