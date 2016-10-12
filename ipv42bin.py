@@ -4,10 +4,12 @@
 from sys import argv, stdin
 from os import linesep
 
-usage = '''USAGE: {} [ [#]HEXVAL]
-Outputs the negative value of #HEXVAL
-HEXVAL may begin with an '#', however one will always be output.
+usage = '''USAGE: {} [IP_ADRESS...]
+Outputs the binary representation of every IP_ADRESS
+IP_ADRESS must be IPv4 format (e.g. `192.168.44.0`)
+and will be ouput as bytes (e.g. `11000000.10101000.00101100.00000000`) of length always 8 bits.
 If called without argument, or argument is `-`, value is read from STDIN.
+On error exits with code the number of the failing value.
 '''.format(argv[0])
 
 try:
