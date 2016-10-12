@@ -3,8 +3,8 @@
 
 from sys import argv, stdin
 
-usage = '''USAGE: {} [ [#]HEXVAL]
-Outputs the negative value of #HEXVAL
+usage = '''USAGE: {} [ [#]HEXVAL...]
+Outputs the negative value of #HEXVAL. Supports multiple arguments.
 HEXVAL may begin with an '#', however one will always be output.
 If called without argument, or argument is `-`, value is read from STDIN.
 '''.format(argv[0])
