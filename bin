@@ -5,8 +5,9 @@ from sys import argv, stdin
 from os import linesep
 
 usage = '''USAGE: {} [INT]
-Outputs the binary value of INT
-If called without argument, or argument is `-`, value is read from STDIN.
+Outputs the binary value of INT.
+Supports multiple arguments.
+If called without argument, or argument is `-`, values are read from STDIN.
 On error exits with code the number of the failing value.
 '''.format(argv[0])
 
