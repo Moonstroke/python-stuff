@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import sys, getopt
+
+from sys import argv, stdin, stdout, stderr
+from getopt import gnu_getopt
+from os import linesep
 
 def get(prompt='', allow_empty=False):
     try:
@@ -14,61 +17,72 @@ def get(prompt='', allow_empty=False):
     else:
         return r if r != '' or allow_empty else get(prompt)
 
-x_py, *args = sys.argv
-_help = '''Reads an CSV table and translates it into HTML format table.
+x_py, *optargs = argv
 
-Usage: {0} [OPTION] [CSV_FILE]
+usage = '''Reads a CSV table and translates it into HTML format table.
 
-OPTION can be:
-   -h | --help        displays this text and exits
-   -c | --csv FILE    use file as input
-   -o | --output FILE print result in FILE
-   -H | --header      the first row is to be interpreted as heading row
-   -s | --sep         separator to use (default is `,`)
+Usage: {0} [OPTION...] [CSV_FILE]
 
-The input file can be provided without the `-c`/`--csv` flag, but output file can not.
+OPTION can be any or several of the following:
+
+\t-h | --help        displays this text and exits
+\t-i | --input  FILE use file as input (none => stdin)
+\t-o | --output FILE print result in FILE (none => stdout)
+\t-H | --horz-h      the first row is a heading
+\t-v | --vert-h      the first column is a heading
+\t-s | --sep    SEP  separator to use (default is `,`)
+\t-I | --id     ID   add the id ID to the <table> markup
 '''. format(x_py)
 
-def translate(t, h, s):
-    r = '<table>\n'
-    for y in t.split('\n'):
-        r += '<tr>\n'
-        if h:
-            _s, _e = '<th>', '</th>\n'
-            h = False
-        else:
-            _s, _e = '<td>', '</td>\n'
-        for x in y.split(s):
-            r += _s + str(x) + _e
-        r += '</tr>\n'
-    return r + '</table>'
-
-opts, args = getopt.gnu_getopt(args, 'hc:o:Hs:', ['help', 'csv=', 'output=', 'header', 'sep'])
-_in = sys.stdin
-out = sys.stdout
-has_header = False
+opts, args = gnu_getopt(optargs, 'hi:o:Hvs:I', ['help', 'input=', 'output=', 'horz-h', 'vert-h', 'sep=', 'id'])
+_in = stdin
+out = stdout
+horz_h = False
+vert_h = False
 sep = ','
+id = ''
+
 for a, o in opts:
     if a in ('-h', '--help'):
-        print(_help)
+        print(usage)
         exit()
-    elif a in ('-c', '--csv'):
+    elif a in ('-i', '--input'):
         _in = open(o, mode='rt')
     elif a in ('-o', '--output'):
         out = open(o, mode='wt')
-    elif a in ('-H', '--header'):
-        has_header = True
+    elif a in ('-H', '--horz-h'):
+        horz_h = True
+    elif a in ('-v', '--vert-h'):
+        vert_h = True
     elif a in ('-s', '--sep'):
         sep = o
-    else: raise ValueError('Unknown argument: ' + repr(a))
+    elif a in ('-I', '--id'):
+        id = o
+    else: print('Invalid argument: ' + a, file=stderr); exit(1)
 
-if _in == sys.stdin and len(args) == 1:
-    _in = open(args[0])
+if _in == stdin and len(args) == 1:
+     _in = args[0].open()
 
 table = _in.read()
-print(repr(table))
 
-print(translate(table, has_header, sep), file=out)
-
+r = '<table' + ('id="' + id + '"' if id else '') + '>\n'
+row1 = horz_h
+for y in table.split(linesep):
+    r += '<tr>'
+    col1 = vert_h
+    if row1:
+        for x in y.split(sep):
+            r += '<th>' + x + '</th>'
+        row1 = False
+    else:
+        for x in y.split(sep):
+            if col1:
+                r += '<th>' + x + '</th>'
+                col1 = False
+            else:
+                r += '<td>' + x + '</td>'
+    r += '</tr>\n'
+r += '</table>'   
+print(r, file=out)
 _in.close()
 out.close()
