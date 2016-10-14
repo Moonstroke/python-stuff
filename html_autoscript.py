@@ -1,172 +1,198 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import time, sys
+from sys import stdin
 
-def get(prompt, allow_empty=False):
+def get(prompt='', allow_empty=False):
     try:
         r = input(prompt)
     except EOFError:
         print('')
-        return get(prompt)
+        r = get(prompt, allow_empty)
     except KeyboardInterrupt:
         print('')
         exit()
-    else:
-        return r if r != '' or allow_empty else get(prompt)
+    return r if len(r) != 0 or allow_empty else get(prompt)
 
-def write(_f, text):
-    with open(_f, mode='xt') as f:
+def read(path, enc='utf-8'):
+    with open(path, mode='rt', encoding=enc) as f:
+        cont = f.read()
+    return cont
+
+def write(text, path, mod='x', enc='utf-8'):
+    with open(path, mode=mod, encoding=enc) as f:
         print(text, file=f)
 
-### Functions
+###
 
-def head():
-    lg = get('Page language: ')
-    ks = get('Charset (default: utf-8): ', True) or 'utf-8'
-    t = get('Title: ')
-    css = get('Associated CSS (leave blank for none): ', True)
-    css = ('\n<link rel="stylesheet" href="' + css + '"/>') if css else ''
-    r = '''<!DOCTYPE HTML>
-<html lang="{0}">
-<head>
-<meta charset="{1}"/>{3}
-<title>{2}</title>
-</head>
-'''.format(lg, ks, t, css)
-    return r, t
-
-def page_header(deft):
-    h1 = get('Page h1 (default: title from <head>): ', True)
-    r = '''<body>
-<header>
-<h1 id="{1}">{0}</h1>
-</header>
-'''.format(h1 or deft, 'top')
     return r
 
-def header(id):
-    h2 = get('Block h2: ')
-    r = '''<header>
-<h2 id="{0}">{1}</h2>
-</header>
-'''.format(id, h2)
+def body():
+    has_header = False
+    has_footer = False
+    nb_articles = 0
+    nb_sections = 0
+    r = '<body>\n'
+    r += sub_block(article, section, h, ul, ol, li, table, p, img, pre, footer)
+    r += '</body>\n'
+    r += '</html>\n'
     return r
 
-def article(n):
-    t = get('Title of article ' + str(n) + ': ')
-    y, m, d = map(str, time.gmtime()[0:3])
-    id = y+'-'+m+'-'+d if get('Set article id by hand? [y/N]: ', True) in 'Nn' else get('Article id: ')
-    r = '''<article id="{0}">
-<header>
-<h2><a href="#{0}" title="Link to the article" rel="bookmark">{1}</a></h2>
-</header>'''.format(id, t)
-    n_sec = 0
-    sub_b = get('Sub block (blank to quit): ', True)
-    while sub_b:
-        if sub_b == 'section':
-            n_sec += 1
-        r += sub_blocks(sub_b, id, n_sec)
-        sub_b = get('Sub block (blank to quit): ', True)
-    r += '</article>\n'
+def header():
+    global has_header
+    has_header = True
+    r = '<header>\n'
     return r
 
-def section(id_a, n):
-    t = get('Title of section ' + str(n) + ': ')
-    id = get('Section id (leave blank for default): ', True) or id_a + '-' + repr(n)
-    r = '<section id="' + id + '">' if id else '<section>'
-    r += get_sub_blocks(id, n, 0) + '''</section>
-'''
+def article():
+    global nb_articles
+    nb_articles += 1
+    nb_sections = 0
+    id = get('Article id (blank for none): ', True)
+    r = '<article' + (' id="' + id + '"' if len(id) else '') + '>'
+    r += sub_blocks()
+    r += '</article>'
     return r
 
-def form():
-    action, method = get('Action: '), get('Method: ')
-    inputs = []
-    has_submit = False
-    _type = get('Input type: (leave blank to stop) ', True)
-    while _type:
-        if _type == 'submit':
-            has_submit = True
-        name, value = get('Input name: '), get('Input value: ')
-        inputs.append((_type, name, value))
-        _type = get('Input type: (leave blank to stop) ', True)
-    if not has_submit:
-        inputs.append(('submit', '', ''))
-    r = '''<form action="{0}" method="{1}">
-'''.format(action, method)
-    for i in inputs:
-        r += '''<input type="{0}" name="{1}" value="{2}"/>
-'''.format(i[0], i[1], i[2])
-    r += '</form>\n'
+def section():
+    global nb_sections
+    nb_sections += 1
+    nb_articles = 0
+    id = get('Section id (blank for none): ', True)
+    r = '<section' + (' id="' + id + '"' if len(id) else '') + '>'
+    r += sub_blocks()
+    r += '</section>'
+    return r
+
+def aside():
+    r = '<aside>\n'
+    r += sub_block('h', 'ul')
+    r += '</aside>\n'
+    return r
+
+def h():
+    deft_l = str(h_lelvel + 1)
+    l = get('Heading level (blank for ' + deft_h + '): ', True) or deft_h
+    r = '<h' + l + '>\n' + get('Text: ') + '</h' + l + '>\n'
+    return r
+
+def p():
+    print('Reading from stdin.')
+    r = stdin.read.replace('\n','<br/>\n')
+    return r
+
+def a():
+    href = get('a href: ')
+    text = get('a text: ')
+    r = '<a href="' + href + '">' + text + '</a>'
+    return r
+
+def img():
+    src = get('img source: ')
+    alt = get('img alternative (blank for none): ', True)
+    r = '<img src="' + src + '" alt="' + alt + '"/>\n'
+    return r
+
+def ul():
+    r = '<ul>\n'
+    r += sub_block('h', 'p', 'img', 'li')
+    return r
+
+def ol():
+    r = '<ol>\n'
+    r += sub_block('h', 'p', 'img', 'li')
+    return r
+
+def li():
+    r = '<li>'
+    text = get('li text (leave blank for a sub-block): ', True)
+    if len(text):
+        r += text
+    else:
+        r += sub_block(h, p, a, ul, ol, table, img)
+        r += '</li>\n'
+    return r
+
+def table():
+    return table_csv() # to do
+
+def table_csv():
+    horz_h = get('Heading row? [y]/[N] ', True).lower() == 'y'
+    vert_h = get('Heading column? [y]/[N] ', True).lower() == 'y'
+    row1 = horz_h
+    for y in table.split(linesep):
+        r += '<tr>'
+        col1 = vert_h
+        if row1:
+            for x in y.split(sep):
+                r += '<th>' + x + '</th>'
+            row1 = False
+        else:
+            if col1:
+                for x in y.split(sep):
+                    r += '<th>' + x + '</th>'
+                col1 = False
+            else:
+                for x in y.split(sep):
+                    r += '<td>' + x + '</td>'
+        r += '</tr>\n'
+    r += '</table>'   
     return r
 
 def pre():
-    print('Reading code from standard input: ')
-    code = sys.stdin.read()
-    return '<pre>\n' + code + '\n' * (not code.endswith('\n')) + '</pre>\n'
+    r = '<pre>\n'
+    print('Reading code from stdin.')
+    r += stdin.read()
+    r += '</pre>\n'
+    return r
 
 def footer():
+    global has_footer
+    has_footer = True
+    r += '<td>' + x + '</td>'
     r = '<footer>\n'
-    
-    return r + '</footer>\n'
+    r += sub_block(table, p, ul, ol)
+    return r
 
-def page_footer():
-    return '''<footer>
-<p><a href="#top" title="Go back to the top of page">Back to top</a></p>
-</footer>
-</body>
-</html>
-'''
+_all = (header, article, section, aside, a, h, img, p, pre, ul, ol, li, table, footer)
 
-#
-
-def blocks(b, n, title = ''):
-    _blocks = {'header': 'page_header(title)',
-               'article': 'article(n)',
-               'footer': 'page_footer()'
-               }
-    return eval(_blocks[b])
-
-def sub_blocks(s_b, parent_id = None, s_n = 0):
-    _blocks = {'header': 'header(parent_id)',
-               'section': 'section(parent_id, parent_n, s_n)',
-               'form': 'form()',
-               'pre': 'pre()',
-               'footer': 'footer()'
-               }
-    return eval(_blocks[s_b])
-
-def get_sub_blocks(p_id, s_n):
+def sub_block(*authorized_blocks):
+    if not len(authorized_blocks): authorized_blocks = _all
     r = ''
-    sub_b = get('Sub block (blank to quit): ', True)
-    while sub_b:
-        r += sub_blocks(sub_b, p_id, s_n)
+    _block = get('Block (leave blank to exit): ', True)
+    while _block != '':
+        try:
+            block = eval(_block)
+            assert block in authorized_blocks
+            r += block()
+        except:
+            print('Oops, unsupported block here.')
+            continue
+        finally:
+            _block = get('Block (leave blank to exit): ', True)
     return r
 
 ###
 
-f = get('Base name of the HTML file: ') + '.html'
+fname = get('Base name: ') + '.html'
 
-head_html, def_title = head()
+mode = 'x' if get('Mode ? [C]reate|[o]verwrite ', True).lower() in 'c' else 'w'
 
-nb_articles = 0
-has_header = False
-has_footer = False
+charset = get('Page charset (leave blank for "utf-8"): ', True) or 'utf-8'
 
-body_html = ''
-block = get('Block: (leave blank to quit) ', True)
-while block:
-    if block == 'header': has_header = True
-    elif block == 'article': nb_articles += 1
-    elif block == 'footer': has_footer = True
-    try:
-        body_html += blocks(block, nb_articles)
-    except KeyError:
-        print('Oops, unsupported block type.')
-    finally:
-        block = get('Block: (leave blank to quit) ', True)
-else:
-    if not has_header: body_html = page_header(def_title) + body_html
-    if not has_footer: body_html += page_footer()
-    write(f, head_html + body_html)
-    print('Written ' + f + '.')
+css = get('Associated CSS (leave blank for none): ', True)
+
+title = get('Page title: ')
+
+
+html_head = '<!DOCTYPE HTML>\n'
+html_head += '<html lang="' + get('Page language: ') + '">\n'
+html_head += '<head>\n'
+html_head += '<meta charset="' + charset + '"/>\n'
+if len(css):
+    html_head += '<link rel="stylesheet" href="' + css + '"/>\n'
+html_head += '<title>' + title + '</title>\n</head>\n'
+write(html_head, fname, mod=mode, enc=charset)
+
+html_body = body()
+write(html_body, fname, mod=mode, enc=charset)
