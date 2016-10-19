@@ -10,8 +10,8 @@ def get(prompt, allow_empty=False):
     except KeyboardInterrupt:
         print('')
         exit()
-else: return r if r != '' or allow_empty else get(prompt)
-    
+    return r if r != '' or allow_empty else get(prompt)
+
 def _repr(g):
     r = '+-+-+-+\n'
     for y in g:
@@ -40,9 +40,10 @@ O_X = True #True <=> O, False <=> X
 victory = False
 nb_turns = 0
 while not victory and nb_turns < 9:
-    print('Turn no : ' + str(nb_tours) + '\n' +  _repr(grille) + '\n\nPlaying : ' + joueur(O_X).upper())
+    print('Turn no : ' + str(nb_turns) + '\n' +  _repr(grid) + '\n\nPlaying : ' + player(O_X).upper())
     try:
-        turn(grid, int(get('x = ')), int(get('y = ')), player(O_X))
+        x, y = get('Enter case coords: ')
+        turn(grid, int(x), int(y), player(O_X))
     except Exception:
         print('Nope! Try again.')
         continue
